@@ -111,12 +111,12 @@ make install
 
 ## License
 
-`git-ps` is Copyright © 2020 UpTech Works, LLC. It is free software, and
+`git-changelog` is Copyright © 2020 UpTech Works, LLC. It is free software, and
 may be redistributed under the terms specified in the LICENSE file.
 
 ## About <img src="http://upte.ch/img/logo.png" alt="uptech" height="48">
 
-`git-ps` is maintained and funded by [UpTech Works, LLC][uptech], a software
+`git-changelog` is maintained and funded by [UpTech Works, LLC][uptech], a software
 design & development agency & consultancy.
 
 We love open source software. See [our other projects][community] or
