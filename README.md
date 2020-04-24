@@ -108,3 +108,22 @@ Date:   Thu Apr 23 23:18:23 2020 -0700
 make
 make install
 ```
+
+## License
+
+`git-ps` is Copyright © 2020 UpTech Works, LLC. It is free software, and
+may be redistributed under the terms specified in the LICENSE file.
+
+## About <img src="http://upte.ch/img/logo.png" alt="uptech" height="48">
+
+`git-ps` is maintained and funded by [UpTech Works, LLC][uptech], a software
+design & development agency & consultancy.
+
+We love open source software. See [our other projects][community] or
+[hire us][hire] to design, develop, and grow your product.
+
+[Git]: https://git-scm.com
+[GNU make]: https://www.gnu.org/software/make/
+[community]: https://github.com/uptech
+[hire]: http://upte.ch
+[uptech]: http://upte.ch
