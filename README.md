@@ -109,6 +109,18 @@ make
 make install
 ```
 
+## FAQ
+
+#### Why not use the commit summaries?
+
+We believe that there are **two** distinct audiences involved. Your commit message and the context and details around them is targeted at the developers of the project. The other audience is the consumer of the product (library/app) and they don't care about all the intricate details. They just care about important things they should know about. In order to protect the value of the commit message and still support the CHANGELOG audience we decided to support the above defined schema within commit messages.
+
+#### Why not use a CHANGELOG.md file in your repository?
+
+Well we used to use CHANGELOG.md files in our repositories for years and years. However, we constantly ran into conflicts with the CHANGELOG.md file as we had a policy of most every Pull Request should update the CHANGELOG.md with an entry in the Unreleased section. This aided us by having the CHANGELOG.md entry tied to the associated code change. It also made life easier for people doing the release as they didn't have to dig through all the commits and try and coble together a CHANGELOG release last minute.
+
+So use the commit messages we were still able to keep the tight coupling to the code change while avoiding all of the CHANGELOG.md conflicts.
+
 ## License
 
 `git-changelog` is Copyright © 2020 UpTech Works, LLC. It is free software, and
