@@ -25,6 +25,8 @@ security: some security fix you want in your changelog
 
 ### Example Commits Below
 
+The following are example commits from a test repository. When `git-changelog` is run against these commits it produced the following example [Markdown Changelog Output](https://github.com/uptech/git-changelog/blob/master/example/CHANGELOG.md).
+
 ```
 commit 3d3982bd9331b77c1caa050339655bb30f8ed0a1
 Author: Andrew De Ponte <cyphactor@gmail.com>
