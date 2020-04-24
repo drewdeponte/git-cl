@@ -53,8 +53,19 @@ public class GitShell {
         }
     }
 
-    public func commits() throws -> [Commit] {
-        let result = try run(self.path, arguments: ["log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"])
+    public func commits(fromRef: String? = nil, toRef: String? = nil, maxCount: Int? = nil) throws -> [Commit] {
+        // Grab our additional commands
+        var aditionalCommands = [String]()
+        if let fromRef = fromRef, let toRef = toRef {
+            aditionalCommands.append("\(fromRef)..\(toRef)")
+        } else if let fromRef = fromRef {
+            aditionalCommands.append("\(fromRef)..HEAD")
+        }
+        if let maxCount = maxCount {
+            aditionalCommands.append("--max-count=\(maxCount)")
+        }
+        
+        let result = try run(self.path, arguments: ["log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"] + aditionalCommands)
         guard result.isSuccessful else { throw Error.gitLogFailure }
 
         if let output = result.standardOutput {
@@ -67,7 +78,6 @@ public class GitShell {
                 let formatter = DateFormatter()
                 formatter.locale = .current
                 formatter.dateFormat = "yyyy-MM-dd"
-
 
                 return Commit(sha: lines[0], date: formatter.date(from: lines[1])!, body: lines[2..<lines.count].joined(separator: "\n"))
             }
