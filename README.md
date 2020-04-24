@@ -121,6 +121,10 @@ Well we used to use CHANGELOG.md files in our repositories for years and years. 
 
 So use the commit messages we were still able to keep the tight coupling to the code change while avoiding all of the CHANGELOG.md conflicts.
 
+#### What Markdown Changelog Format is followd?
+
+We have used [keep a changelog](https://keepachangelog.com) for a long time and haven't really seen much better so we decided to use it as the basis for the output here as well.
+
 ## License
 
 `git-changelog` is Copyright © 2020 UpTech Works, LLC. It is free software, and
