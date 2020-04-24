@@ -71,7 +71,7 @@ public final class GitChangelog {
                 print("Unrecognized commande line arguments")
             }
         } else {
-            try self.fetchChangelog(withMax: 500)
+            try self.fetchChangelog(withMax: 300)
         }
     }
     
