@@ -102,12 +102,51 @@ Date:   Thu Apr 23 23:18:23 2020 -0700
     added: README.md so people could document things
 ```
 
-## Build & Install
+## Installation
+
+If you are on a platform other than macOS you will have to build your own
+version from source.
+
+### macOS
+
+To install on macOS we provide a [Homebrew](http://brew.sh) tap which provides
+the `git-changelog` formula. You can use it by doing the following:
+
+#### Add the Tap
 
 ```
-make
-make install
+brew tap "uptech/homebrew-oss"
 ```
+
+#### brew install
+
+```
+brew install uptech/oss/git-changelog
+```
+
+### Build from Source
+
+If you are on another platform you will have to build from source. Given
+that `git-changelog` is managed via [GNU make][]. It can be built as follows:
+
+```
+$ make build
+```
+
+Once you have built it successfully you can install it in `/usr/local/bin` using the following:
+
+```
+$ make install
+```
+
+## Development
+
+We use [GNU make][] to manage the developer build process with the following commands.
+
+- `make build` - build release version of the `git-changelog`
+- `make install` - install the release build into `/usr/local/bin`
+- `make uninstall` - uninstall the release build from `/usr/local/bin`
+- `make clean` - clean the build directory
 
 ## FAQ
 
