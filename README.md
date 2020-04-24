@@ -102,7 +102,7 @@ Date:   Thu Apr 23 23:18:23 2020 -0700
 
 ## Build & Install
 
-````
+```
 make
 make install
 ```
