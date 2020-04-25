@@ -83,7 +83,10 @@ public final class GitChangelog {
         for commit in commitsSequence {
             // this commit has version bump
 
-            let changelogBody = commit.body.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "[changelog]").dropFirst().joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+            // skip commits that don't have body because obviously they don't have any changelog entries
+            guard let body = commit.body else { continue }
+
+            let changelogBody = body.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "[changelog]").dropFirst().joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
 
             let pattern = #"(added|changed|deprecated|removed|fixed|security|release):\w?(.*)"#
             let regex = try NSRegularExpression(pattern: pattern, options: [])

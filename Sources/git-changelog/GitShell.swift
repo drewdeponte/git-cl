@@ -3,7 +3,8 @@ import Foundation
 public struct Commit {
     public let sha: String
     public let date: Date
-    public let body: String
+    public let summary: String
+    public let body: String?
 }
 
 public struct CommitSummary {
@@ -67,7 +68,12 @@ public struct CommitsIterator: IteratorProtocol {
 
                 self.previousRange = range
 
-                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, body: lines[2..<lines.count].joined(separator: "\n"))
+                var hasBody =  false
+                if lines.endIndex >= 4 {
+                    hasBody = true
+                }
+            
+                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
             }
         } else {
             if isFirstMatch() {
@@ -86,7 +92,12 @@ public struct CommitsIterator: IteratorProtocol {
                 self.previousRange = nil
                 self.isExhausted = true
 
-                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, body: lines[2..<lines.count].joined(separator: "\n"))
+                var hasBody =  false
+                if lines.endIndex >= 4 {
+                    hasBody = true
+                }
+
+                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
             } else {
                 return nil
             }
