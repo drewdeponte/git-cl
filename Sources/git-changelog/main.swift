@@ -1,11 +1,18 @@
+import ConsoleKit
+import Foundation
 
-let gitChangelog = try! GitChangelog()
+let console: Console = Terminal()
+var input = CommandInput(arguments: CommandLine.arguments)
+var context = CommandContext(console: console, input: input)
+
+var commands = Commands(enableAutocomplete: true)
+commands.use(LogCommand(), as: "log", isDefault: true)
+commands.use(VersionCommand(), as: "version", isDefault: false)
 
 do {
-    try gitChangelog.run()
-} catch GitChangelog.Error.invalidArgumentCount {
-    print("Default commands are: \n\n git-changelog, --version).")
-} catch {
-    print("Whoops! An error occurred: \(error)")
+    let group = commands.group(help: "An example command-line application built with ConsoleKit")
+    try console.run(group, input: input)
+} catch let error {
+    console.error("\(error)")
+    exit(1)
 }
-

@@ -1,7 +1,7 @@
 import XCTest
 
-import git_changelogTests
+import ReleaseTests
 
 var tests = [XCTestCaseEntry]()
-tests += git_changelogTests.allTests()
+tests += ChangelogTests.allTests()
 XCTMain(tests)
