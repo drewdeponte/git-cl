@@ -15,7 +15,6 @@ struct Changelog {
     var releases: [ReleaseID: Release] = [:]
 }
 
-
 public final class GitChangelog {
     let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -71,7 +70,7 @@ public final class GitChangelog {
                 print("Unrecognized commande line arguments")
             }
         } else {
-            try self.fetchChangelog(withMax: 300)
+            try self.fetchChangelog()
         }
     }
     
@@ -79,8 +78,9 @@ public final class GitChangelog {
         var changelog: Changelog = Changelog()
         var currentReleaseID: Changelog.ReleaseID?
 
-        let commits = try self.git.commits(fromRef: fromRef, toRef: toRef, maxCount: maxCount)
-        try! commits.forEach { commit in
+        let commitsSequence: Commits = try self.git.commits(fromRef: fromRef, toRef: toRef, maxCount: maxCount)
+
+        for commit in commitsSequence {
             // this commit has version bump
 
             let changelogBody = commit.body.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "[changelog]").dropFirst().joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)

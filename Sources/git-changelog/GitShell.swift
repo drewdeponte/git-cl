@@ -17,6 +17,83 @@ extension CommitSummary: CustomStringConvertible {
     }
 }
 
+public struct Commits: Sequence {
+    let formattedGitLogOutput: String
+
+    public func makeIterator() -> CommitsIterator {
+        return CommitsIterator(self)
+    }
+}
+
+public struct CommitsIterator: IteratorProtocol {
+    let commits: Commits
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
+    private var previousRange: Range<String.Index>?
+    private var isExhausted: Bool = false
+
+    init(_ commits: Commits) {
+        self.commits = commits
+    }
+
+    private func isFirstMatch() -> Bool {
+        return self.previousRange == nil
+    }
+
+    public mutating func next() -> Commit? {
+        var searchRange: Range<String.Index>?
+        if let prevRange = self.previousRange {
+            searchRange = prevRange.upperBound..<self.commits.formattedGitLogOutput.endIndex
+        } else {
+            searchRange = self.commits.formattedGitLogOutput.startIndex..<self.commits.formattedGitLogOutput.endIndex
+        }
+
+        if let range = self.commits.formattedGitLogOutput.range(of: "----GIT-CHANGELOG-COMMIT-BEGIN----\n", range: searchRange) {
+            if self.isFirstMatch() {
+                self.previousRange = range
+                return self.next()
+            } else {
+                // grab the content between the end of the previous range and the beginning of the new range
+                let contentRange: Range<String.Index> = self.previousRange!.upperBound..<range.lowerBound
+
+                let rawCommitContent = self.commits.formattedGitLogOutput[contentRange]
+
+                let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
+
+                self.previousRange = range
+
+                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, body: lines[2..<lines.count].joined(separator: "\n"))
+            }
+        } else {
+            if isFirstMatch() {
+                return nil
+            }
+
+            if !self.isExhausted {
+                self.isExhausted = true
+
+                let contentRange: Range<String.Index> = self.previousRange!.upperBound..<self.commits.formattedGitLogOutput.endIndex
+
+                let rawCommitContent = self.commits.formattedGitLogOutput[contentRange]
+
+                let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
+
+                self.previousRange = nil
+                self.isExhausted = true
+
+                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, body: lines[2..<lines.count].joined(separator: "\n"))
+            } else {
+                return nil
+            }
+        }
+    }
+}
+
 public class GitShell {
     public enum Error: Swift.Error {
         case gitLogFailure
@@ -53,8 +130,7 @@ public class GitShell {
         }
     }
 
-    public func commits(fromRef: String? = nil, toRef: String? = nil, maxCount: Int? = nil) throws -> [Commit] {
-        // Grab our additional commands
+    public func commits(fromRef: String? = nil, toRef: String? = nil, maxCount: Int? = nil) throws -> Commits {
         var aditionalCommands = [String]()
         if let fromRef = fromRef, let toRef = toRef {
             aditionalCommands.append("\(fromRef)..\(toRef)")
@@ -64,35 +140,14 @@ public class GitShell {
         if let maxCount = maxCount {
             aditionalCommands.append("--max-count=\(maxCount)")
         }
-        
-        let result = try run(self.path, arguments: ["log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"] + aditionalCommands)
+
+        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"] + aditionalCommands)
         guard result.isSuccessful else { throw Error.gitLogFailure }
 
         if let output = result.standardOutput {
-
-            let commitTextBlobs = output.components(separatedBy: "----GIT-CHANGELOG-COMMIT-BEGIN----\n").dropFirst()
-
-            return commitTextBlobs.map { (commitTextBlob) -> Commit in
-                let lines = commitTextBlob.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
-
-                let formatter = DateFormatter()
-                formatter.locale = .current
-                formatter.dateFormat = "yyyy-MM-dd"
-
-                return Commit(sha: lines[0], date: formatter.date(from: lines[1])!, body: lines[2..<lines.count].joined(separator: "\n"))
-            }
-//            let commits = output.split
-
-//            let lines = output.split { $0.isNewline }
-//
-//            return lines.map { (line) -> CommitSummary in
-//                let firstSpace = line.firstIndex(of: " ")!
-//                let sha = String(line.prefix(upTo: firstSpace))
-//                let summary = line.suffix(from: firstSpace).trimmingCharacters(in: .whitespacesAndNewlines)
-//                return CommitSummary(sha: sha, summary: summary)
-//            }
+            return Commits(formattedGitLogOutput: output)
         }
-        return []
+        return Commits(formattedGitLogOutput: "")
     }
 
     public func commits(from fromRef: String, to toRef: String) throws -> [CommitSummary] {
