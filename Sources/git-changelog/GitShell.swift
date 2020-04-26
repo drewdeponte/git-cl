@@ -47,6 +47,8 @@ public struct CommitsIterator: IteratorProtocol {
     }
 
     public mutating func next() -> Commit? {
+        guard !isExhausted else { return nil }
+
         var searchRange: Range<String.Index>?
         if let prevRange = self.previousRange {
             searchRange = prevRange.upperBound..<self.commits.formattedGitLogOutput.endIndex
@@ -75,32 +77,28 @@ public struct CommitsIterator: IteratorProtocol {
             
                 return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
             }
-        } else {
+        } else { // should be the end of the content
             if isFirstMatch() {
                 return nil
             }
 
-            if !self.isExhausted {
-                self.isExhausted = true
+            self.isExhausted = true
 
-                let contentRange: Range<String.Index> = self.previousRange!.upperBound..<self.commits.formattedGitLogOutput.endIndex
+            let contentRange: Range<String.Index> = self.previousRange!.upperBound..<self.commits.formattedGitLogOutput.endIndex
 
-                let rawCommitContent = self.commits.formattedGitLogOutput[contentRange]
+            let rawCommitContent = self.commits.formattedGitLogOutput[contentRange]
 
-                let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
+            let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
 
-                self.previousRange = nil
-                self.isExhausted = true
+            self.previousRange = nil
+            self.isExhausted = true
 
-                var hasBody =  false
-                if lines.endIndex >= 4 {
-                    hasBody = true
-                }
-
-                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
-            } else {
-                return nil
+            var hasBody =  false
+            if lines.endIndex >= 4 {
+                hasBody = true
             }
+
+            return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
         }
     }
 }
