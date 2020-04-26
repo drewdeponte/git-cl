@@ -1,4 +1,4 @@
-# git-changelog
+# git-cl
 
 A Git command line tool that generates a Markdown Changelog from a defined schema that can be used in your commits.
 

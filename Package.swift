@@ -4,22 +4,22 @@
 import PackageDescription
 
 let package = Package(
-    name: "git-changelog",
+    name: "git-cl",
     platforms: [
-        SupportedPlatform.macOS(SupportedPlatform.MacOSVersion.v10_13)
+        .macOS(.v10_13)
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
+         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "0.0.5"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
-            name: "git-changelog",
-            dependencies: []),
-        .testTarget(
-            name: "git-changelogTests",
-            dependencies: ["git-changelog"]),
+            name: "git-cl",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
+        .testTarget(name: "GitCLTests", dependencies: ["git-cl"]),
     ]
 )

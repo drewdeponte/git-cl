@@ -1,7 +1,7 @@
 import XCTest
-import class Foundation.Bundle
+import Foundation
 
-final class git_changelogTests: XCTestCase {
+final class GitCLTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
@@ -12,7 +12,7 @@ final class git_changelogTests: XCTestCase {
             return
         }
 
-        let fooBinary = productsDirectory.appendingPathComponent("git-changelog")
+        let fooBinary = productsDirectory.appendingPathComponent("git-cl")
 
         let process = Process()
         process.executableURL = fooBinary
@@ -20,13 +20,15 @@ final class git_changelogTests: XCTestCase {
         let pipe = Pipe()
         process.standardOutput = pipe
 
+        process.arguments = ["--version"]
+        
         try process.run()
         process.waitUntilExit()
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)
-
-        XCTAssertEqual(output, "Hello, world!\n")
+        
+        XCTAssertEqual(output, "v1.1.0\n")
     }
 
     /// Returns path to the built products directory.
