@@ -1,6 +1,6 @@
 import Foundation
 
-public struct MarkdownGenerator {
+public class MarkdownAction {
     public enum ChangelogType {
         case both
         case unreleased
@@ -38,9 +38,11 @@ public struct MarkdownGenerator {
         case .released:
             result += self.generateReleased(from: changelog)
         }
-        
-        if let url = url {
-            result +=  self.generateVersionDiffs(from: changelog, with: url)
+        // Generate the diff links for everything other than the unreleased changes
+        if type != .unreleased {
+            if let url = url {
+                result +=  self.generateVersionDiffs(from: changelog, with: url)
+            }
         }
         return result
     }
@@ -65,6 +67,21 @@ public struct MarkdownGenerator {
                 result += "\n### \(category.capitalized)\n"
                 entries.forEach { result += "- \($0)\n" }
             }
+        }
+        
+        return result
+    }
+    
+    public func generateRelease(from changelog: Changelog, for release: String) -> String {
+        guard let changelogRelease = changelog.releases[release] else {
+            return "No changelog found"
+        }
+        
+        var result = ""
+        result += "\n\n## \(release) - \(self.dateFormatter.string(from: changelogRelease.date))\n"
+        changelogRelease.categorizedEntries.forEach { (category, entries) in
+            result += "\n### \(category.capitalized)\n"
+            entries.forEach { result += "- \($0)\n" }
         }
         
         return result

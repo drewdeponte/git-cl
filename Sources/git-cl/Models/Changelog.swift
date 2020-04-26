@@ -1,11 +1,11 @@
 import Foundation
 
-public struct Changelog {
+public struct Changelog: Codable {
     public typealias Category = String
     public typealias Entry = String
     public typealias ReleaseID = String
 
-    public struct Release {
+    public struct Release: Codable {
         public let date: Date
         public let id: Changelog.ReleaseID
         public var categorizedEntries: [Category: [Entry]]

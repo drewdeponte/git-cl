@@ -1,23 +1,5 @@
 import Foundation
 
-public struct Commit {
-    public let sha: String
-    public let date: Date
-    public let summary: String
-    public let body: String?
-}
-
-public struct CommitSummary {
-    public let sha: String
-    public let summary: String
-}
-
-extension CommitSummary: CustomStringConvertible {
-    public var description: String {
-        return "\(self.sha.prefix(6)) \(self.summary)"
-    }
-}
-
 public struct Commits: Sequence {
     let formattedGitLogOutput: String
 
@@ -111,18 +93,8 @@ public class GitShell {
         }
     }
 
-    public func commits(fromRef: String? = nil, toRef: String? = nil, maxCount: Int? = nil) throws -> Commits {
-        var aditionalCommands = [String]()
-        if let fromRef = fromRef, let toRef = toRef {
-            aditionalCommands.append("\(fromRef)..\(toRef)")
-        } else if let fromRef = fromRef {
-            aditionalCommands.append("\(fromRef)..HEAD")
-        }
-        if let maxCount = maxCount {
-            aditionalCommands.append("--max-count=\(maxCount)")
-        }
-
-        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"] + aditionalCommands)
+    public func commits() throws -> Commits {
+        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"])
         guard result.isSuccessful else { throw Error.gitLogFailure }
         guard let output = result.standardOutput else { return Commits(formattedGitLogOutput: "") }
         
