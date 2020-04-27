@@ -1,5 +1,12 @@
 import Foundation
 
+public struct Commit {
+    public let sha: String
+    public let date: Date
+    public let summary: String
+    public let body: String?
+}
+
 public struct Commits: Sequence {
     let formattedGitLogOutput: String
 

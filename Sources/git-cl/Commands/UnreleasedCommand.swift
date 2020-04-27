@@ -1,10 +1,23 @@
 import Foundation
 import ArgumentParser
 
+extension Dictionary where Key == Changelog.Category, Value == [Changelog.Entry] {
+    public mutating func upsertAppend(value: Changelog.Entry, for key: Changelog.Category) {
+        if let _ = self[key] {
+            self[key]!.append(value)
+        } else {
+            self[key] = [value]
+        }
+    }
+}
+
 struct UnreleasedCommand: ParsableCommand {
     enum CodingKeys: String, CodingKey {
         case commits = "commits"
     }
+
+    private let git: GitShell
+    private let changelogCommits: ChangelogCommits
     
     static var configuration: CommandConfiguration {
         return .init(
@@ -21,27 +34,60 @@ struct UnreleasedCommand: ParsableCommand {
     let markdownAction = MarkdownAction()
     
     init() {
-        
+        self.git = try! GitShell(bash: Bash())
+        self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
     }
     
     init(from decoder: Decoder) throws {
+        self.git = try! GitShell(bash: Bash())
+        self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
+
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.commits = try container.decode(Bool.self, forKey: .commits)
     }
     
     func run() throws {
-        if self.commits {
-            try self.changelogAction.parse()
-            print(self.changelogAction.unreleasedCommits.description)
-            return
+        var categorizedEntries: [Changelog.Category: [Changelog.Entry]] = [:]
+
+        outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
+            if !changelogCommit.changelogEntries.isEmpty {
+                for entry in changelogCommit.changelogEntries {
+                    switch entry {
+                    case .release(_):
+                        break outerLoop
+                    default:
+                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
+                    }
+                }
+            }
+
+            // If we have gotten this far it isn't a release commit
+            if self.commits {
+                print(commitSummary(changelogCommit))
+            }
         }
-        
-        let changes = try self.changelogAction.parse()
-        let markdown = try self.markdownAction.generate(
-            .unreleased,
-            from: changes,
-            with: self.changelogAction.repositoryURL()
-        )
-        print(markdown)
+
+        if !self.commits {
+            print(markdownUnreleased(categorizedEntries))
+        }
     }
+}
+
+func markdownUnreleased(_ categorizedEntries: [Changelog.Category: [Changelog.Entry]]) -> String {
+    var result = "\n\n## Unreleased - now\n"
+    result += markdown(categorizedEntries)
+    return result
+}
+
+func markdown(_ categorizedEntries: [Changelog.Category: [Changelog.Entry]]) -> String {
+    var result = ""
+    categorizedEntries.forEach { category, entries in
+        result += "\n### \(category.capitalized)\n"
+        entries.forEach { result += "- \($0)\n" }
+    }
+    return result
+}
+
+func commitSummary(_ changelogCommit: ChangelogCommit) -> String {
+    return "\(changelogCommit.commit.sha.prefix(6)) \(changelogCommit.commit.summary)"
 }
