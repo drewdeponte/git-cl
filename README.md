@@ -67,7 +67,7 @@ brew tap "uptech/homebrew-oss"
 #### brew install
 
 ```
-brew install uptech/oss/git-cli
+brew install uptech/oss/git-cl
 ```
 
 ### Build from Source
