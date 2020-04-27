@@ -44,8 +44,8 @@ After youh ave been recording your CHANGELOG entries you can use `git-cl` to do 
 - `git cl latest` - get the changelog entries of the latest release
 - `git cl latest --commits` - get the commits that are part of the latest release
 - `git cl full` - get a full Markdown CHANGELOG based on [keepachangelog](https://keepachangelog.com/), useful for automating publishing or doing a historical review of a project
-- `git cl released [release-id]` - get changelog entries for the specified release or all the released versions if `release-id` isn't specified
-- `git cl released [released-id] --commits` - get commits included in the specified release or all the released versions if `release-id` isn't specified
+- `git cl released <release-id>` - get changelog entries for the specified release
+- `git cl released <released-id> --commits` - get commits included in the specified release
 
 
 ## Installation

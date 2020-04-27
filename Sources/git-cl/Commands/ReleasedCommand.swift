@@ -17,9 +17,9 @@ struct ReleasedCommand: ParsableCommand {
     
     @Flag(name: .shortAndLong, help: "Generate a list of released commits")
     var commits: Bool
-    
-    @Option(name: .shortAndLong, help: "The release id")
-    var release: String?
+
+    @Argument(help: "The release id")
+    var release: String
         
     let changelogAction = ChangelogAction()
     let markdownAction = MarkdownAction()
@@ -42,17 +42,10 @@ struct ReleasedCommand: ParsableCommand {
         }
         
         let changes = try self.changelogAction.parse()
-        var markdown = try self.markdownAction.generate(
-            .released,
+        let markdown = self.markdownAction.generateRelease(
             from: changes,
-            with: self.changelogAction.repositoryURL()
+            for: release
         )
-        if let release = release {
-            markdown = self.markdownAction.generateRelease(
-                from: changes,
-                for: release
-            )
-        }
         print(markdown)
     }
 }
