@@ -145,6 +145,13 @@ public class GitShell {
             return nil
         }
     }
+    
+    public func findRespoitoryOriginURL() throws -> URL? {
+        let result = try run(self.path, arguments: ["remote", "get-url", "origin"])
+        guard result.isSuccessful == true else { return nil }
+        guard let output = result.standardOutput else { return nil }
+        return URL(string: String(output.dropLast(5)))
+    }
 }
 
 fileprivate func directoryExists(atPath path: String) -> Bool {

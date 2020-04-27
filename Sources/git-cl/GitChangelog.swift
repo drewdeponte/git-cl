@@ -102,7 +102,8 @@ public final class GitChangelog {
             }
         }
         
-        print(self.markdown.generate(.both, from: self.changelog))
+        let markdown = try self.markdown.generate(.both, from: self.changelog, with: self.git.findRespoitoryOriginURL())
+        print(markdown)
     }
 }
 

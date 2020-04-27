@@ -25,7 +25,7 @@ public struct MarkdownGenerator {
     
     init() { }
     
-    public func generate(_ type: ChangelogType, from changelog: Changelog) -> String {
+    public func generate(_ type: ChangelogType, from changelog: Changelog, with url: URL?) -> String {
         var result = self.markdownChanglogBase
         switch type {
         case .both:
@@ -37,6 +37,10 @@ public struct MarkdownGenerator {
             
         case .released:
             result += self.generateReleased(from: changelog)
+        }
+        
+        if let url = url {
+            result +=  self.generateVersionDiffs(from: changelog, with: url)
         }
         return result
     }
@@ -55,7 +59,7 @@ public struct MarkdownGenerator {
     public func generateReleased(from changelog: Changelog) -> String {
         var result = ""
         
-        changelog.releases.forEach { releaseID, release in
+        changelog.releases.sorted(by: { $0.key > $1.key }).forEach { releaseID, release in
             result += "\n\n## \(releaseID) - \(self.dateFormatter.string(from: release.date))\n"
             release.categorizedEntries.forEach { (category, entries) in
                 result += "\n### \(category.capitalized)\n"
@@ -65,4 +69,37 @@ public struct MarkdownGenerator {
         
         return result
     }
+    
+    func generateVersionDiffs(from changelog: Changelog, with url: URL) -> String {
+        var result = "\n\n"
+        let sortedReleases = changelog.releases.sorted(by: { $0.key > $1.key })
+        for index in 0..<sortedReleases.count {
+            // If it's the first index, we need to set it as un-released
+            if index == 0 {
+                let release = sortedReleases[index]
+                let ref = url.absoluteString + "/compare/\(release.key)...HEAD"
+                result += "[Unreleased]: \(ref)\n"
+                continue
+            }
+            
+            // If it's the last release, we need to set the tag
+            if index == sortedReleases.count - 1 {
+                let release = sortedReleases[index]
+                let ref = url.absoluteString + "/releases/tag/\(release.key)"
+                result += "[\(release.key)]: \(ref)\n"
+                continue
+            }
+            
+            // Check if our index is in range
+            if index - 1 >= 0 {
+                let release = sortedReleases[index]
+                let previousRelease = sortedReleases[index - 1]
+                let ref = url.absoluteString + "/compare/\(release.key)...\(previousRelease.key)"
+                result += "[\(release.key)]: \(ref)\n"
+            }
+        }
+        
+        return result
+    }
 }
+

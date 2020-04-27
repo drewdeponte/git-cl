@@ -5,10 +5,10 @@ build:
 	swift build -c release --disable-sandbox
 
 install: build
-	install ".build/release/git-changelog" "$(bindir)"
+	install ".build/release/git-cl" "$(bindir)"
 
 uninstall:
-	rm -rf "$(bindir)/git-changelog"
+	rm -rf "$(bindir)/git-cl"
 
 clean:
 	rm -rf .build
