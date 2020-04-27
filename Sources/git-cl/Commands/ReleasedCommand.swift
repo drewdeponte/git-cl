@@ -6,6 +6,9 @@ struct ReleasedCommand: ParsableCommand {
         case commits = "commits"
         case release = "release"
     }
+
+    private let git: GitShell
+    private let changelogCommits: ChangelogCommits
     
     static var configuration: CommandConfiguration {
         return .init(
@@ -20,40 +23,58 @@ struct ReleasedCommand: ParsableCommand {
 
     @Argument(help: "The release id")
     var release: String
-        
-    let changelogAction = ChangelogAction()
-    let markdownAction = MarkdownAction()
-    
+
     init() {
-        
+        self.git = try! GitShell(bash: Bash())
+        self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
     }
     
     init(from decoder: Decoder) throws {
+        self.git = try! GitShell(bash: Bash())
+        self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.commits = try container.decode(Bool.self, forKey: .commits)
         self.release = try container.decode(String.self, forKey: .release)
     }
     
     func run() throws {
-        if self.commits {
-            try self.changelogAction.parse()
-            print(self.changelogAction.releasedCommits.description)
-            return
+        var releaseCommits: [ChangelogCommit] = []
+        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
+
+        var releaseID: String?
+        var releaseDate: Date?
+        var matchedRelease: Bool = false
+
+        outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
+            if !changelogCommit.changelogEntries.isEmpty {
+                for entry in changelogCommit.changelogEntries {
+                    switch entry {
+                    case .release(let msg):
+                        if matchedRelease {
+                            break outerLoop
+                        } else {
+                            releaseID = msg
+                            releaseDate = changelogCommit.commit.date
+                            matchedRelease = (msg == self.release)
+                            releaseCommits = []
+                            categorizedEntries = [:]
+                        }
+                    default:
+                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
+                    }
+                }
+            }
+            releaseCommits.append(changelogCommit)
         }
-        
-        let changes = try self.changelogAction.parse()
-        print(changes)
-//        var markdown = try self.markdownAction.generate(
-//            .released,
-//            from: changes,
-//            with: self.changelogAction.repositoryURL()
-//        )
-//        if let release = release {
-//            markdown = self.markdownAction.generateRelease(
-//                from: changes,
-//                for: release
-//            )
-//        }
-//        print(markdown)
+
+        if matchedRelease {
+            if self.commits {
+                releaseCommits.forEach { changelogCommit in
+                    print(commitSummary(changelogCommit))
+                }
+            } else {
+                print(markdownRelease(releaseID: releaseID!, date: releaseDate!, categorizedEntries: categorizedEntries))
+            }
+        }
     }
 }
