@@ -8,7 +8,7 @@ public class GitChangelog: ParsableCommand {
             abstract: "Git Changelog Generation",
             discussion: "Generates a CHANGELOG.md compatible file based on changelog entries in your git commits.",
             version: VERSION.description,
-            subcommands: [FullCommand.self, UnreleasedCommand.self, ReleasedCommand.self]
+            subcommands: [LatestCommand.self, FullCommand.self, UnreleasedCommand.self, ReleasedCommand.self]
         )
     }
     

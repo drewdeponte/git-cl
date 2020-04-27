@@ -1,33 +1,33 @@
 import Foundation
 import ArgumentParser
 
-struct UnreleasedCommand: ParsableCommand {
+struct LatestCommand: ParsableCommand {
     enum CodingKeys: String, CodingKey {
         case commits = "commits"
     }
 
     private let git: GitShell
     private let changelogCommits: ChangelogCommits
-    
+
     static var configuration: CommandConfiguration {
         return .init(
-            commandName: "unreleased",
-            abstract: "Unreleased Changes",
-            discussion: "Returns the unreleased portion of the changelog"
+            commandName: "latest",
+            abstract: "Latest Release",
+            discussion: "Returns the latest release portion of the changelog"
         )
     }
-    
-    @Flag(name: .shortAndLong, help: "Generate a list of unreleased commits")
+
+    @Flag(name: .shortAndLong, help: "Generate a list of commits from the latest release")
     var commits: Bool
-    
+
     let changelogAction = ChangelogAction()
     let markdownAction = MarkdownAction()
-    
+
     init() {
         self.git = try! GitShell(bash: Bash())
         self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
     }
-    
+
     init(from decoder: Decoder) throws {
         self.git = try! GitShell(bash: Bash())
         self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
@@ -35,36 +35,52 @@ struct UnreleasedCommand: ParsableCommand {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.commits = try container.decode(Bool.self, forKey: .commits)
     }
-    
+
     func run() throws {
         var categorizedEntries: [Changelog.Category: [Changelog.Entry]] = [:]
+        var releaseID: String?
+        var releaseDate: Date?
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
             if !changelogCommit.changelogEntries.isEmpty {
                 for entry in changelogCommit.changelogEntries {
                     switch entry {
-                    case .release(_):
-                        break outerLoop
+                    case .release(let msg):
+                        if releaseID != nil {
+                            break outerLoop
+                        } else {
+                            releaseID = msg
+                            releaseDate = changelogCommit.commit.date
+                        }
                     default:
-                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
+                        if releaseID != nil {
+                            categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
+                        }
                     }
                 }
             }
 
             // If we have gotten this far it isn't a release commit
-            if self.commits {
-                print(commitSummary(changelogCommit))
+            if releaseID != nil {
+                if self.commits {
+                    print(commitSummary(changelogCommit))
+                }
             }
         }
 
         if !self.commits {
-            print(markdownUnreleased(categorizedEntries))
+            print(markdownRelease(releaseID: releaseID!, date: releaseDate!, categorizedEntries: categorizedEntries))
         }
     }
 }
 
-func markdownUnreleased(_ categorizedEntries: [Changelog.Category: [Changelog.Entry]]) -> String {
-    var result = "\n\n## Unreleased - now\n"
+func markdownRelease(releaseID: String, date: Date, categorizedEntries: [Changelog.Category: [Changelog.Entry]]) -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.locale = .current
+    dateFormatter.dateFormat = "yyyy-MM-dd"
+
+    var result = ""
+    result += "\n\n## \(releaseID) - \(dateFormatter.string(from: date))\n"
     result += markdown(categorizedEntries)
     return result
 }
