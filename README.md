@@ -1,12 +1,22 @@
 # git-cl
 
-A Git command line tool that generates a Markdown Changelog from a defined schema that can be used in your commits.
+A Git command line tool for managing your CHANGELOG from defined schema entries in your commits.
 
-## Stop fighting CHANGELOG.md conflicts!!!
+## Why
 
-### Just use the defined schema below in your commits
+We created `git-cl` primarily because of the following:
 
-#### Schema
+- conflicts caused by people changing a `CHANGELOG.md` file are **annoying**
+- the audience of a CHANGELOG is different than the audience of your commit messages
+- having the concept of a `release` in a commit message unlocks extremly useful abilities
+
+## How
+
+You use it on two ends. First you have to record your CHANGELOG entries.
+
+### Record CHANGELOG Entries
+
+Similar to what you are probably used to with CHANGELOG file formats, with `git-cl` you include single line entries categorized within the following: `release`, `added`, `changed`, `deprecated`, `removed`, `fixed`, `security`. The difference is that you place these entries at the end of your Git commit message body under a section identified via `[changelog]`. 
 
 The following is an example of the schema. You effectively have a section header of `[changelog]` and then below that you have any of the categorized entries that follow.
 
@@ -23,84 +33,20 @@ fixed: some fix you want in your changelog
 security: some security fix you want in your changelog
 ```
 
-### Example Commits Below
+Still want to get more comfortable? Check out this [example Git log](https://github.com/uptech/git-changelog/blob/master/example/GIT_LOG.md)
 
-The following are example commits from a test repository. When `git-changelog` is run against these commits it produced the following example [Markdown Changelog Output](https://github.com/uptech/git-changelog/blob/master/example/CHANGELOG.md).
+### Get CHANGELOG Info
 
-```
-commit 3d3982bd9331b77c1caa050339655bb30f8ed0a1
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Fri Apr 24 00:29:48 2020 -0700
+After youh ave been recording your CHANGELOG entries you can use `git-cl` to do a number of useful things.
 
-    aeuaoeuaeouaeo blob
-    
-    [changelog]
-    release: 1.0.0-build.2
+- `git cl unreleased` - get the unreleased changelog entries when prepping a release
+- `git cl unreleased --commits` - get the unreleased commits when prepping a release
+- `git cl latest` - get the changelog entries of the latest release
+- `git cl latest --commits` - get the commits that are part of the latest release
+- `git cl full` - get a full Markdown CHANGELOG based on [keepachangelog](https://keepachangelog.com/), useful for automating publishing or doing a historical review of a project
+- `git cl released [release-id]` - get changelog entries for the specified release or all the released versions if `release-id` isn't specified
+- `git cl released [released-id] --commits` - get commits included in the specified release or all the released versions if `release-id` isn't specified
 
-commit 59d3f084ec3de9c5eba94c1979ce1e566951fcab
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:55:33 2020 -0700
-
-    Added some thing
-    
-    [changelog]
-    added: somethang bad
-
-commit f2caac6d04fddf2440c0be234077b3ff0fc3f8bf
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:54:05 2020 -0700
-
-    Something
-    
-    [changelog]
-    deprecated: good stuff
-
-commit 9a6261ef26a663b1af7d08c2e974a07c91cffc84
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:43:01 2020 -0700
-
-    aoeuaoeuaoeu
-    
-    [changelog]
-    release: v2.0.0
-
-commit 2a3506db2f672def37740be8249b6a8ec455a3bc
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:41:21 2020 -0700
-
-    aeouaoeuaeuaeuaoeau
-    
-    [changelog]
-    deprecated: your name
-    removed: your house
-    fixed: your car
-    security: zoom
-
-commit 18fbf4d02c3120daf213a0725e1afb8e605ad611
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:23:04 2020 -0700
-
-    Bump version to v1.0.0
-    
-    [changelog]
-    changed: clothes after my shower
-    release: v1.0.0
-
-commit 745c8b2030766bafa2b757d29ed2fcb4f9f4ea05
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:22:07 2020 -0700
-
-    Changed some crap
-
-commit 3e59624957e65232fb8349d8d92256201e9fa7c1
-Author: Andrew De Ponte <cyphactor@gmail.com>
-Date:   Thu Apr 23 23:18:23 2020 -0700
-
-    Initial commit
-    
-    [changelog]
-    added: README.md so people could document things
-```
 
 ## Installation
 
@@ -110,7 +56,7 @@ version from source.
 ### macOS
 
 To install on macOS we provide a [Homebrew](http://brew.sh) tap which provides
-the `git-changelog` formula. You can use it by doing the following:
+the `git-cl` formula. You can use it by doing the following:
 
 #### Add the Tap
 
@@ -121,13 +67,13 @@ brew tap "uptech/homebrew-oss"
 #### brew install
 
 ```
-brew install uptech/oss/git-changelog
+brew install uptech/oss/git-cli
 ```
 
 ### Build from Source
 
 If you are on another platform you will have to build from source. Given
-that `git-changelog` is managed via [GNU make][]. It can be built as follows:
+that `git-cl` is managed via [GNU make][]. It can be built as follows:
 
 ```
 $ make build
@@ -143,7 +89,7 @@ $ make install
 
 We use [GNU make][] to manage the developer build process with the following commands.
 
-- `make build` - build release version of the `git-changelog`
+- `make build` - build release version of the `git-cl`
 - `make install` - install the release build into `/usr/local/bin`
 - `make uninstall` - uninstall the release build from `/usr/local/bin`
 - `make clean` - clean the build directory
@@ -166,12 +112,12 @@ We have used [keep a changelog](https://keepachangelog.com) for a long time and 
 
 ## License
 
-`git-changelog` is Copyright © 2020 UpTech Works, LLC. It is free software, and
+`git-cl` is Copyright © 2020 UpTech Works, LLC. It is free software, and
 may be redistributed under the terms specified in the LICENSE file.
 
 ## About <img src="http://upte.ch/img/logo.png" alt="uptech" height="48">
 
-`git-changelog` is maintained and funded by [UpTech Works, LLC][uptech], a software
+`git-cl` is maintained and funded by [UpTech Works, LLC][uptech], a software
 design & development agency & consultancy.
 
 We love open source software. See [our other projects][community] or
