@@ -1,12 +1,5 @@
 import Foundation
 
-public struct Commit {
-    public let sha: String
-    public let date: Date
-    public let summary: String
-    public let body: String?
-}
-
 public struct Commits: Sequence {
     let formattedGitLogOutput: String
 
@@ -128,7 +121,12 @@ public class GitShell {
     public func findRespoitoryOriginURL() throws -> URL? {
         let result = try run(self.path, arguments: ["remote", "get-url", "origin"])
         guard result.isSuccessful == true else { return nil }
-        guard let output = result.standardOutput else { return nil }
+        guard var output = result.standardOutput else { return nil }
+        if output.contains("ssh") {
+            output = output
+                .replacingOccurrences(of: "git@", with: "https://")
+                .replacingOccurrences(of: ":", with: "/")
+        }
         return URL(string: String(output.dropLast(5)))
     }
 }

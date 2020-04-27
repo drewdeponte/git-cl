@@ -37,7 +37,7 @@ struct LatestCommand: ParsableCommand {
     }
 
     func run() throws {
-        var categorizedEntries: [Changelog.Category: [Changelog.Entry]] = [:]
+        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
         var releaseID: String?
         var releaseDate: Date?
 
@@ -72,15 +72,4 @@ struct LatestCommand: ParsableCommand {
             print(markdownRelease(releaseID: releaseID!, date: releaseDate!, categorizedEntries: categorizedEntries))
         }
     }
-}
-
-func markdownRelease(releaseID: String, date: Date, categorizedEntries: [Changelog.Category: [Changelog.Entry]]) -> String {
-    let dateFormatter = DateFormatter()
-    dateFormatter.locale = .current
-    dateFormatter.dateFormat = "yyyy-MM-dd"
-
-    var result = ""
-    result += "\n\n## \(releaseID) - \(dateFormatter.string(from: date))\n"
-    result += markdown(categorizedEntries)
-    return result
 }

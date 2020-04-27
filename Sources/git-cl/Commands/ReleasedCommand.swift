@@ -42,10 +42,18 @@ struct ReleasedCommand: ParsableCommand {
         }
         
         let changes = try self.changelogAction.parse()
-        let markdown = self.markdownAction.generateRelease(
-            from: changes,
-            for: release
-        )
-        print(markdown)
+        print(changes)
+//        var markdown = try self.markdownAction.generate(
+//            .released,
+//            from: changes,
+//            with: self.changelogAction.repositoryURL()
+//        )
+//        if let release = release {
+//            markdown = self.markdownAction.generateRelease(
+//                from: changes,
+//                for: release
+//            )
+//        }
+//        print(markdown)
     }
 }

@@ -31,6 +31,5 @@ public enum ChangelogEntry {
         case .removed(let msg): return msg
         case .security(let msg): return msg
         }
-
     }
 }

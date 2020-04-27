@@ -37,7 +37,7 @@ struct UnreleasedCommand: ParsableCommand {
     }
     
     func run() throws {
-        var categorizedEntries: [Changelog.Category: [Changelog.Entry]] = [:]
+        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
             if !changelogCommit.changelogEntries.isEmpty {
@@ -61,10 +61,4 @@ struct UnreleasedCommand: ParsableCommand {
             print(markdownUnreleased(categorizedEntries))
         }
     }
-}
-
-func markdownUnreleased(_ categorizedEntries: [Changelog.Category: [Changelog.Entry]]) -> String {
-    var result = "\n\n## Unreleased - now\n"
-    result += markdown(categorizedEntries)
-    return result
 }
