@@ -12,9 +12,6 @@ struct FullCommand: ParsableCommand {
             discussion: "Returns all of the unreleased and released in changelog"
         )
     }
-        
-    let changelogAction = ChangelogAction()
-    let markdownAction = MarkdownAction()
     
     init() {
         self.git = try! GitShell(bash: Bash())

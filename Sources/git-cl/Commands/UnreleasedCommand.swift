@@ -20,9 +20,6 @@ struct UnreleasedCommand: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Generate a list of unreleased commits")
     var commits: Bool
     
-    let changelogAction = ChangelogAction()
-    let markdownAction = MarkdownAction()
-    
     init() {
         self.git = try! GitShell(bash: Bash())
         self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
