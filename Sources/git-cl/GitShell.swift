@@ -47,15 +47,15 @@ public struct CommitsIterator: IteratorProtocol {
                 // grab the content between the end of the previous range and the beginning of the new range
                 let contentRange: Range<String.Index> = self.previousRange!.upperBound..<range.lowerBound
                 let rawCommitContent = self.commits.formattedGitLogOutput[contentRange]
-                let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
+                let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "\n")
                 self.previousRange = range
 
                 var hasBody =  false
-                if lines.endIndex >= 4 {
+                if lines.endIndex >= 5 {
                     hasBody = true
                 }
             
-                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
+                return Commit(sha: lines[0], date: dateFormatter.date(from: lines[2])!, summary: lines[3], body: (hasBody ? lines[5..<lines.count].joined(separator: "\n") : nil), tags: self.extractTags(str: lines[1]))
             }
         } else { // should be the end of the content
             if isFirstMatch() { return nil }
@@ -63,18 +63,35 @@ public struct CommitsIterator: IteratorProtocol {
             self.isExhausted = true
             let contentRange: Range<String.Index> = self.previousRange!.upperBound..<self.commits.formattedGitLogOutput.endIndex
             let rawCommitContent = self.commits.formattedGitLogOutput[contentRange]
-            let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines) .components(separatedBy: "\n")
+            let lines = rawCommitContent.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "\n")
 
             self.previousRange = nil
             self.isExhausted = true
 
             var hasBody =  false
-            if lines.endIndex >= 4 {
+            if lines.endIndex >= 5 {
                 hasBody = true
             }
 
-            return Commit(sha: lines[0], date: dateFormatter.date(from: lines[1])!, summary: lines[2], body: (hasBody ? lines[4..<lines.count].joined(separator: "\n") : nil))
+            return Commit(sha: lines[0], date: dateFormatter.date(from: lines[2])!, summary: lines[3], body: (hasBody ? lines[5..<lines.count].joined(separator: "\n") : nil), tags: self.extractTags(str: lines[1]))
         }
+    }
+
+    private func extractTags(str: String) -> [String] {
+        let cleansedStr = str.replacingOccurrences(of: " (", with: "").replacingOccurrences(of: ")", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+
+        var tags: [String] = []
+        cleansedStr.split(separator: ",").forEach { item in
+            let cleansedItem = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            if cleansedItem.count > 5 {
+                if cleansedItem.prefix(5) == "tag: " { // we have a tag
+                    let tagValueStartIndex = cleansedItem.index(cleansedItem.startIndex, offsetBy: 5, limitedBy: cleansedItem.endIndex)!
+                    let tagVal = String(cleansedItem[tagValueStartIndex..<cleansedItem.endIndex])
+                    tags.append(tagVal)
+                }
+            }
+        }
+        return tags
     }
 }
 
@@ -94,7 +111,7 @@ public class GitShell {
     }
 
     public func commits() throws -> Commits {
-        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%as%n%B"])
+        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%d%n%as%n%B"])
         guard result.isSuccessful else { throw Error.gitLogFailure }
         guard let output = result.standardOutput else { return Commits(formattedGitLogOutput: "") }
         

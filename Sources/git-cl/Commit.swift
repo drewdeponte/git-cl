@@ -5,6 +5,7 @@ public struct Commit {
     public let date: Date
     public let summary: String
     public let body: String?
+    public let tags: [String]
 }
 
 extension Commit: CustomStringConvertible {
