@@ -39,20 +39,19 @@ struct LatestCommand: ParsableCommand {
         var releaseDate: Date?
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
+            if let release = changelogCommit.release {
+                if releaseID != nil {
+                    break outerLoop
+                } else {
+                    releaseID = release
+                    releaseDate = changelogCommit.commit.date
+                }
+            }
+
             if !changelogCommit.changelogEntries.isEmpty {
                 for entry in changelogCommit.changelogEntries {
-                    switch entry {
-                    case .release(let msg):
-                        if releaseID != nil {
-                            break outerLoop
-                        } else {
-                            releaseID = msg
-                            releaseDate = changelogCommit.commit.date
-                        }
-                    default:
-                        if releaseID != nil {
-                            categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                        }
+                    if releaseID != nil {
+                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
                     }
                 }
             }

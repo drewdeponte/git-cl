@@ -37,14 +37,13 @@ struct UnreleasedCommand: ParsableCommand {
         var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
+            if let _ = changelogCommit.release {
+                break outerLoop
+            }
+
             if !changelogCommit.changelogEntries.isEmpty {
                 for entry in changelogCommit.changelogEntries {
-                    switch entry {
-                    case .release(_):
-                        break outerLoop
-                    default:
-                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                    }
+                    categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
                 }
             }
 

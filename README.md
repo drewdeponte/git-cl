@@ -8,7 +8,7 @@ We created `git-cl` primarily because of the following:
 
 - conflicts caused by people changing a `CHANGELOG.md` file are **annoying**
 - the audience of a CHANGELOG is different than the audience of your commit messages
-- having the concept of a `release` in a commit message unlocks extremly useful abilities
+- wanted Git tags to identify releases so people don't have to change their release workflow
 
 ## How
 
@@ -16,15 +16,12 @@ You use it on two ends. First you have to record your CHANGELOG entries.
 
 ### Record CHANGELOG Entries
 
-Similar to what you are probably used to with CHANGELOG file formats, with `git-cl` you include single line entries categorized within the following: `release`, `added`, `changed`, `deprecated`, `removed`, `fixed`, `security`. The difference is that you place these entries at the end of your Git commit message body under a section identified via `[changelog]`. 
+Similar to what you are probably used to with CHANGELOG file formats, with `git-cl` you include single line entries categorized within the following: `added`, `changed`, `deprecated`, `removed`, `fixed`, `security`. The difference is that you place these entries at the end of your Git commit message body under a section identified via `[changelog]`. 
 
 The following is an example of the schema. You effectively have a section header of `[changelog]` and then below that you have any of the categorized entries that follow.
 
-*Note:* If you include both a `release` entry as well as other entries. If the other entries are below the `release` entry they will be included as part of that release. If they are above the `release` entry they will be included as part of the Unreleased category.
-
 ```text
 [changelog]
-release: v2.4.8
 added: some addition you made that you want in your changelog
 changed: some change you made that you want in your changelog
 deprecated: some deprecation notice you want in your changelog

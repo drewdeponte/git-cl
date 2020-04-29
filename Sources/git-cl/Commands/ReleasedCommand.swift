@@ -46,22 +46,21 @@ struct ReleasedCommand: ParsableCommand {
         var matchedRelease: Bool = false
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
+            if let commitRelease = changelogCommit.release {
+                if matchedRelease {
+                    break outerLoop
+                } else {
+                    releaseID = commitRelease
+                    releaseDate = changelogCommit.commit.date
+                    matchedRelease = (commitRelease == self.release)
+                    releaseCommits = []
+                    categorizedEntries = [:]
+                }
+            }
+
             if !changelogCommit.changelogEntries.isEmpty {
                 for entry in changelogCommit.changelogEntries {
-                    switch entry {
-                    case .release(let msg):
-                        if matchedRelease {
-                            break outerLoop
-                        } else {
-                            releaseID = msg
-                            releaseDate = changelogCommit.commit.date
-                            matchedRelease = (msg == self.release)
-                            releaseCommits = []
-                            categorizedEntries = [:]
-                        }
-                    default:
-                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                    }
+                    categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
                 }
             }
             releaseCommits.append(changelogCommit)

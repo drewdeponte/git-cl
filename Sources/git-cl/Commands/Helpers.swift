@@ -10,6 +10,12 @@ extension Dictionary where Key == OldChangelog.Category, Value == [OldChangelog.
     }
 }
 
+extension String {
+    func matches(_ regex: String) -> Bool {
+        return (self.range(of: regex, options: .regularExpression, range: nil, locale: nil) != nil)
+    }
+}
+
 func markdown(_ categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]]) -> String {
     var result = ""
     categorizedEntries.forEach { category, entries in

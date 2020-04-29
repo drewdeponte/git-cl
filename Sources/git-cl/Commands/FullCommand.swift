@@ -42,32 +42,32 @@ struct FullCommand: ParsableCommand {
         """)
 
         for changelogCommit: ChangelogCommit in self.changelogCommits {
+            // if it is release
+            if let release = changelogCommit.release {
+                // track release shas for generating link references at the end
+                if let releaseID = releaseID, let _ = releaseDate, let releaseSha = releaseSha {
+                    versionShas.append((releaseID, releaseSha, changelogCommit.commit.sha))
+                } else { // handle Unreleased
+                    versionShas.append(("Unreleased", "HEAD", changelogCommit.commit.sha))
+                }
+
+                // print the previous release or unreleased
+                if let releaseID = releaseID, let releaseDate = releaseDate, let _ = releaseSha {
+                    print(markdownRelease(releaseID: releaseID, date: releaseDate, categorizedEntries: categorizedEntries, withLinkRef: true))
+                } else {
+                    print(markdownUnreleased(categorizedEntries, withLinkRef: true))
+                }
+
+                // reset the categorizedEntries and associated tracking state
+                releaseID = release
+                releaseDate = changelogCommit.commit.date
+                releaseSha = changelogCommit.commit.sha
+                categorizedEntries = [:]
+            }
+
             if !changelogCommit.changelogEntries.isEmpty {
                 for entry in changelogCommit.changelogEntries {
-                    switch entry {
-                    case .release(let msg):
-                        // track release shas for generating link references at the end
-                        if let releaseID = releaseID, let _ = releaseDate, let releaseSha = releaseSha {
-                            versionShas.append((releaseID, releaseSha, changelogCommit.commit.sha))
-                        } else { // handle Unreleased
-                            versionShas.append(("Unreleased", "HEAD", changelogCommit.commit.sha))
-                        }
-
-                        // print the previous release or unreleased
-                        if let releaseID = releaseID, let releaseDate = releaseDate, let _ = releaseSha {
-                            print(markdownRelease(releaseID: releaseID, date: releaseDate, categorizedEntries: categorizedEntries, withLinkRef: true))
-                        } else {
-                            print(markdownUnreleased(categorizedEntries, withLinkRef: true))
-                        }
-
-                        // reset the categorizedEntries and associated tracking state
-                        releaseID = msg
-                        releaseDate = changelogCommit.commit.date
-                        releaseSha = changelogCommit.commit.sha
-                        categorizedEntries = [:]
-                    default:
-                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                    }
+                    categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
                 }
             }
             lastSha = changelogCommit.commit.sha
