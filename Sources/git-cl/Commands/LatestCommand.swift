@@ -39,7 +39,7 @@ struct LatestCommand: ParsableCommand {
         var releaseDate: Date?
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let release = changelogCommit.release {
+            if let release = changelogCommit.release() {
                 if releaseID != nil {
                     break outerLoop
                 } else {

@@ -5,7 +5,7 @@ public struct ChangelogCommit {
     public let commit: Commit
     public let changelogEntries: [ChangelogEntry]
 
-    var release: String? {
+    public func release() -> String? {
         for tag in self.commit.tags {
             if tag.matches(releaseRegexPattern) {
                 return tag

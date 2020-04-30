@@ -37,7 +37,7 @@ struct UnreleasedCommand: ParsableCommand {
         var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let _ = changelogCommit.release {
+            if let _ = changelogCommit.release() {
                 break outerLoop
             }
 

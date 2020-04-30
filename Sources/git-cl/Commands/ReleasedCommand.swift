@@ -46,7 +46,7 @@ struct ReleasedCommand: ParsableCommand {
         var matchedRelease: Bool = false
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let commitRelease = changelogCommit.release {
+            if let commitRelease = changelogCommit.release() {
                 if matchedRelease {
                     break outerLoop
                 } else {

@@ -44,7 +44,7 @@ struct FullCommand: ParsableCommand {
 
         for changelogCommit: ChangelogCommit in self.changelogCommits {
             // if it is release
-            if let release = changelogCommit.release {
+            if let release = changelogCommit.release() {
                 // track release shas for generating link references at the end
                 if let releaseID = releaseID, let _ = releaseDate, let releaseSha = releaseSha {
                     versionShas.append((releaseID, releaseSha, changelogCommit.commit.sha))
