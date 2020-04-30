@@ -1,0 +1,70 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+## [Unreleased] - now
+
+
+## [v3.0.0] - 2020-04-29
+
+### Removed
+- 'release' commit message body entries as supported entry types
+
+### Changed
+- to identify releases by Git tags matching pattern: ^v?\d+\.\d+\.\d+$
+
+
+## [v2.0.0] - 2020-04-27
+
+### Fixed
+- released sub-command so it works correctly
+- Diff links now display all releases and the headers of each section correctly links to the diff.
+- bug where double the first commit entries would show up
+- issue blocking git commands with large output
+
+### Changed
+- Refactored some code and cleaned things up
+- fetch commits to return Sequence w/ an Iterator, not an Array
+
+### Removed
+- variant of released with no release-id argument
+- Removed all of the sub commands options that were present
+
+### Added
+- latest sub-command to allow users to get the latest release info
+- Swift Argument Parser to allow for a cleaner appraoch to command line arguments.
+- Implemented support for full, released <optional_version> and unreleased
+- Implemented a --commits and to released and unreleased to allow all of the commit info to be returned
+- Added Diff Links to the bottom of the markdown file
+
+
+## [v1.1.0] - 2020-04-24
+
+### Changed
+- default max from 500 commits to 300 commits
+
+### Added
+- Implemented a way to fetch commits from a tag [#3](https://github.com/uptech/git-changelog/issues/3)
+- Added support for fetching between tag [#6](https://github.com/uptech/git-changelog/issues/3)
+- Implemented a way to limit the number of commits fetched
+
+### Fixed
+- Large commit repositories would take forever to load, so
+
+
+## [v1.0.0] - 2020-04-24
+
+### Added
+- LICENSE file so people understand how it is legally licensed
+- ability to parse defined changelog schema entries out of commits
+- markdown based changelog generation
+
+[Unreleased]: https://github.com/uptech/git-cl/compare/d6d4c12...HEAD
+[v3.0.0]: https://github.com/uptech/git-cl/compare/591d7c1...d6d4c12
+[v2.0.0]: https://github.com/uptech/git-cl/compare/12828a5...591d7c1
+[v1.1.0]: https://github.com/uptech/git-cl/compare/3e27a81...12828a5
+[v1.0.0]: https://github.com/uptech/git-cl/compare/79e9191...3e27a81
