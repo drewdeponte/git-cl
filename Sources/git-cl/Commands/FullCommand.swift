@@ -99,14 +99,18 @@ struct FullCommand: ParsableCommand {
         }
 
         // print the link references
-        let compareBaseURL = self.repositoryURL()!
-        versionShas.forEach { versionShaInfo in
-            print("[\(versionShaInfo.0)]: \(compareBaseURL.absoluteString)/compare/\(versionShaInfo.2.prefix(7))...\(versionShaInfo.1.prefix(7))")
+        if let compareBaseURL = self.repositoryURL() {
+            versionShas.forEach { versionShaInfo in
+                print("[\(versionShaInfo.0)]: \(compareBaseURL.absoluteString)/compare/\(versionShaInfo.2.prefix(7))...\(versionShaInfo.1.prefix(7))")
+            }
         }
     }
 
     private func repositoryURL() -> URL? {
-        let urlString = try! self.git.findRespoitoryOriginURL()!.absoluteString
-        return URL(string: urlString.replacingOccurrences(of: ":", with: "/").replacingOccurrences(of: "git@", with: "https://"))
+        if let urlString = try? self.git.findRespoitoryOriginURL()?.absoluteString {
+            return URL(string: urlString.replacingOccurrences(of: ":", with: "/").replacingOccurrences(of: "git@", with: "https://"))
+        } else {
+            return nil
+        }
     }
 }
