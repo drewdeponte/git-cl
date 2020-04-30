@@ -45,7 +45,7 @@ security: some security fix you want in your changelog
 ```
 
 Still want to get more comfortable? Check out a snapshot of the Git log of this
-project [example Git log](https://github.com/uptech/git-changelog/blob/master/example/GIT_LOG.md).
+project [example Git log](https://github.com/uptech/git-changelog/blob/master/example/GIT_LOG.txt).
 
 ### Tag a Release
 
