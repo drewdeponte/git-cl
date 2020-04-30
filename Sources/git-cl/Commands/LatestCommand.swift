@@ -4,6 +4,7 @@ import ArgumentParser
 struct LatestCommand: ParsableCommand {
     enum CodingKeys: String, CodingKey {
         case commits = "commits"
+        case pre = "pre"
     }
 
     private let git: GitShell
@@ -20,6 +21,9 @@ struct LatestCommand: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Generate a list of commits from the latest release")
     var commits: Bool
 
+    @Flag(name: .shortAndLong, help: "Include pre-releases in the output")
+    var pre: Bool
+
     init() {
         self.git = try! GitShell(bash: Bash())
         self.changelogCommits = ChangelogCommits(commits: try! self.git.commits())
@@ -31,6 +35,7 @@ struct LatestCommand: ParsableCommand {
 
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.commits = try container.decode(Bool.self, forKey: .commits)
+        self.pre = try container.decode(Bool.self, forKey: .pre)
     }
 
     func run() throws {
@@ -39,7 +44,7 @@ struct LatestCommand: ParsableCommand {
         var releaseDate: Date?
 
         outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let release = changelogCommit.release() {
+            if let release = changelogCommit.release(self.pre) {
                 if releaseID != nil {
                     break outerLoop
                 } else {

@@ -2,6 +2,10 @@ import Foundation
 import ArgumentParser
 
 struct FullCommand: ParsableCommand {
+    enum CodingKeys: String, CodingKey {
+        case pre = "pre"
+    }
+
     private let git: GitShell
     private let changelogCommits: ChangelogCommits
 
@@ -12,6 +16,9 @@ struct FullCommand: ParsableCommand {
             discussion: "Returns all of the unreleased and released in changelog"
         )
     }
+
+    @Flag(name: .shortAndLong, help: "Include pre-releases in the output")
+    var pre: Bool
     
     init() {
         self.git = try! GitShell(bash: Bash())
@@ -21,6 +28,9 @@ struct FullCommand: ParsableCommand {
     init(from decoder: Decoder) throws {
         self.git = try! GitShell(bash: Bash())
         self.changelogCommits = try! ChangelogCommits(commits: self.git.commits())
+
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.pre = try container.decode(Bool.self, forKey: .pre)
     }
     
     func run() throws {
@@ -44,7 +54,7 @@ struct FullCommand: ParsableCommand {
 
         for changelogCommit: ChangelogCommit in self.changelogCommits {
             // if it is release
-            if let release = changelogCommit.release() {
+            if let release = changelogCommit.release(self.pre) {
                 // track release shas for generating link references at the end
                 if let releaseID = releaseID, let _ = releaseDate, let releaseSha = releaseSha {
                     versionShas.append((releaseID, releaseSha, changelogCommit.commit.sha))
