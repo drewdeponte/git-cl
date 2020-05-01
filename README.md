@@ -55,7 +55,8 @@ probably extremely similar if not exactly the same as what you normally do. You
 simply use Git to tag the head commit of your release in the following pattern
 (`vX.Y.Z` or `X.Y.Z`). Any other tags that don't match those patterns exactly
 including pre-release version patterns (e.g. `v1.2.3-build-123`) will not be
-recognized as releases.
+recognized as releases unless you use the (`-p`, `--pre`) switches in supported
+commands to indicate you want to include pre-release versions as well.
 
 ### Generate/Inspect Changelog
 
