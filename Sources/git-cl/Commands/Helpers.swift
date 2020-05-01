@@ -18,7 +18,7 @@ extension String {
 
 func markdown(_ categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]]) -> String {
     var result = ""
-    categorizedEntries.forEach { category, entries in
+    categorizedEntries.sorted(by: { $0.0 < $1.0 }).forEach { category, entries in
         result += "\n### \(category.capitalized)\n"
         entries.forEach { result += "- \($0)\n" }
     }
