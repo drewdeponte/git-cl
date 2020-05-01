@@ -60,7 +60,7 @@ commands to indicate you want to include pre-release versions as well.
 
 ### Generate/Inspect Changelog
 
-Once you have some Git commits with Changelog Entries you can start to some
+Once you have some Git commits with Changelog Entries you can start to get some
 useful things with `git-cl`. If you have a tagged release or two in addition
 you can do even more useful things. The following is a list of the various
 `git-cl` commands you can run and a short description of what they do.
