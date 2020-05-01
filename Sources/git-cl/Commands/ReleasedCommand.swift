@@ -43,41 +43,18 @@ struct ReleasedCommand: ParsableCommand {
     }
     
     func run() throws {
-        var releaseCommits: [ChangelogCommit] = []
-        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
+        let releases = try self.git.tags()
+            .compactMap({ Release($0) })
+            .filter({ self.pre ? true : !$0.isPreRelease })
 
-        var releaseID: String?
-        var releaseDate: Date?
-        var matchedRelease: Bool = false
-
-        outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let commitRelease = changelogCommit.release(self.pre) {
-                if matchedRelease {
-                    break outerLoop
-                } else {
-                    releaseID = commitRelease
-                    releaseDate = changelogCommit.commit.date
-                    matchedRelease = (commitRelease == self.release)
-                    releaseCommits = []
-                    categorizedEntries = [:]
-                }
-            }
-
-            if !changelogCommit.changelogEntries.isEmpty {
-                for entry in changelogCommit.changelogEntries {
-                    categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                }
-            }
-            releaseCommits.append(changelogCommit)
-        }
-
-        if matchedRelease {
+        if let selectedRelease = releases.first(where: { $0.tag == self.release }) {
+            let details = ReleaseDetails(for: selectedRelease.tag, using: self.git, includePreReleases: self.pre)!
             if self.commits {
-                releaseCommits.forEach { changelogCommit in
+                details.changelogCommits.forEach { (changelogCommit) in
                     print(commitSummary(changelogCommit))
                 }
             } else {
-                print(markdownRelease(releaseID: releaseID!, date: releaseDate!, categorizedEntries: categorizedEntries))
+                print(markdownRelease(releaseID: details.tag, date: details.date, categorizedEntries: details.changelogEntries, withLinkRef: true))
             }
         }
     }

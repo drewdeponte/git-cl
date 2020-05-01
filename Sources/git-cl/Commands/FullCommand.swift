@@ -34,12 +34,12 @@ struct FullCommand: ParsableCommand {
     }
     
     func run() throws {
-        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
         var versionShas: [(String, String, String)] = []
-        var releaseID: String?
-        var releaseDate: Date?
-        var releaseSha: String?
-        var lastSha: String?
+
+        let releases = try self.git.tags()
+            .compactMap({ Release($0) })
+            .filter({ self.pre ? true : !$0.isPreRelease })
+            .sorted(by: >) // sort in decending order
 
         print("""
         # Changelog
@@ -52,50 +52,19 @@ struct FullCommand: ParsableCommand {
 
         """)
 
-        for changelogCommit: ChangelogCommit in self.changelogCommits {
-            // if it is release
-            if let release = changelogCommit.release(self.pre) {
-                // track release shas for generating link references at the end
-                if let releaseID = releaseID, let _ = releaseDate, let releaseSha = releaseSha {
-                    versionShas.append((releaseID, releaseSha, changelogCommit.commit.sha))
-                } else { // handle Unreleased
-                    versionShas.append(("Unreleased", "HEAD", changelogCommit.commit.sha))
-                }
-
-                // print the previous release or unreleased
-                if let releaseID = releaseID, let releaseDate = releaseDate, let _ = releaseSha {
-                    print(markdownRelease(releaseID: releaseID, date: releaseDate, categorizedEntries: categorizedEntries, withLinkRef: true))
-                } else {
-                    print(markdownUnreleased(categorizedEntries, withLinkRef: true))
-                }
-
-                // reset the categorizedEntries and associated tracking state
-                releaseID = release
-                releaseDate = changelogCommit.commit.date
-                releaseSha = changelogCommit.commit.sha
-                categorizedEntries = [:]
-            }
-
-            if !changelogCommit.changelogEntries.isEmpty {
-                for entry in changelogCommit.changelogEntries {
-                    categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                }
-            }
-            lastSha = changelogCommit.commit.sha
-        }
-
-        // track release shas for generating link references at the end
-        if let releaseID = releaseID, let _ = releaseDate, let releaseSha = releaseSha {
-            versionShas.append((releaseID, releaseSha, lastSha!))
-        } else { // handle Unreleased
-            versionShas.append(("Unreleased", "HEAD", lastSha!))
-        }
-
-        // print the previous release or unreleased
-        if let releaseID = releaseID, let releaseDate = releaseDate {
-            print(markdownRelease(releaseID: releaseID, date: releaseDate, categorizedEntries: categorizedEntries, withLinkRef: true))
+        // print unreleased
+        if let unreleasedDetails = ReleaseDetails(for: "master", using: self.git, startsOnRelease: false, includePreReleases: self.pre) {
+            versionShas.append(("Unreleased", unreleasedDetails.startingSha1, unreleasedDetails.endingSha1))
+            print(markdownUnreleased(unreleasedDetails.changelogEntries, withLinkRef: true))
         } else {
-            print(markdownUnreleased(categorizedEntries, withLinkRef: true))
+            print(markdownUnreleased([:], withLinkRef: true))
+        }
+
+        // print releases
+        for release in releases {
+            let details = ReleaseDetails(for: release.tag, using: self.git, includePreReleases: self.pre)!
+            versionShas.append((details.tag, details.startingSha1, details.endingSha1))
+            print(markdownRelease(releaseID: details.tag, date: details.date, categorizedEntries: details.changelogEntries, withLinkRef: true))
         }
 
         // print the link references

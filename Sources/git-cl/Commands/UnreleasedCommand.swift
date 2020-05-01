@@ -39,27 +39,16 @@ struct UnreleasedCommand: ParsableCommand {
     }
     
     func run() throws {
-        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
-
-        outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let _ = changelogCommit.release(self.pre) {
-                break outerLoop
-            }
-
-            if !changelogCommit.changelogEntries.isEmpty {
-                for entry in changelogCommit.changelogEntries {
-                    categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                }
-            }
-
-            // If we have gotten this far it isn't a release commit
+        if let details = ReleaseDetails(for: "master", using: self.git, startsOnRelease: false, includePreReleases: self.pre) {
             if self.commits {
-                print(commitSummary(changelogCommit))
+                details.changelogCommits.forEach { (changelogCommit) in
+                     print(commitSummary(changelogCommit))
+                 }
+            } else {
+                print(markdownUnreleased(details.changelogEntries, withLinkRef: true))
             }
-        }
-
-        if !self.commits {
-            print(markdownUnreleased(categorizedEntries))
+        } else if !self.commits {
+            print(markdownUnreleased([:], withLinkRef: true))
         }
     }
 }

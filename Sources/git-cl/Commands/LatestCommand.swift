@@ -39,38 +39,20 @@ struct LatestCommand: ParsableCommand {
     }
 
     func run() throws {
-        var categorizedEntries: [OldChangelog.Category: [OldChangelog.Entry]] = [:]
-        var releaseID: String?
-        var releaseDate: Date?
+        let releases = try self.git.tags()
+            .compactMap({ Release($0) })
+            .filter({ self.pre ? true : !$0.isPreRelease })
+            .sorted(by: >) // sort in decending order
 
-        outerLoop: for changelogCommit: ChangelogCommit in self.changelogCommits {
-            if let release = changelogCommit.release(self.pre) {
-                if releaseID != nil {
-                    break outerLoop
-                } else {
-                    releaseID = release
-                    releaseDate = changelogCommit.commit.date
-                }
-            }
-
-            if !changelogCommit.changelogEntries.isEmpty {
-                for entry in changelogCommit.changelogEntries {
-                    if releaseID != nil {
-                        categorizedEntries.upsertAppend(value: entry.message, for: entry.typeString)
-                    }
-                }
-            }
-
-            // If we have gotten this far it isn't a release commit
-            if releaseID != nil {
-                if self.commits {
+        if let release = releases.first {
+            let details = ReleaseDetails(for: release.tag, using: self.git, includePreReleases: self.pre)!
+            if self.commits {
+                details.changelogCommits.forEach { (changelogCommit) in
                     print(commitSummary(changelogCommit))
                 }
+            } else {
+                print(markdownRelease(releaseID: details.tag, date: details.date, categorizedEntries: details.changelogEntries, withLinkRef: true))
             }
-        }
-
-        if !self.commits {
-            print(markdownRelease(releaseID: releaseID!, date: releaseDate!, categorizedEntries: categorizedEntries))
         }
     }
 }

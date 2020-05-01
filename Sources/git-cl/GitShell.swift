@@ -95,9 +95,12 @@ public struct CommitsIterator: IteratorProtocol {
     }
 }
 
+public typealias Tag = String
+
 public class GitShell {
     public enum Error: Swift.Error {
         case gitLogFailure
+        case gitTagFailure
     }
 
     private let path: String
@@ -108,6 +111,21 @@ public class GitShell {
         } else {
             self.path = try bash.which("git")
         }
+    }
+
+    public func tags() throws -> [Tag] {
+        let result = try run(self.path, arguments: ["--no-pager", "tag"])
+        guard result.isSuccessful else { throw Error.gitTagFailure }
+        guard let output = result.standardOutput else { return [] }
+        return output.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "\n").map({ $0 as Tag })
+    }
+
+    public func commits(for tag: Tag)throws -> Commits {
+        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%d%n%as%n%B", tag])
+        guard result.isSuccessful else { throw Error.gitLogFailure }
+        guard let output = result.standardOutput else { return Commits(formattedGitLogOutput: "") }
+
+        return Commits(formattedGitLogOutput: output)
     }
 
     public func commits() throws -> Commits {
