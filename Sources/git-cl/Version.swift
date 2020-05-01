@@ -1,6 +1,6 @@
 import Foundation
 
-let VERSION = Version(major: 3, minor: 1, patch: 1)
+let VERSION = Version(major: 3, minor: 1, patch: 2)
 
 public struct Version {
     public let major: UInt
