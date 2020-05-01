@@ -57,7 +57,7 @@ struct FullCommand: ParsableCommand {
             versionShas.append(("Unreleased", unreleasedDetails.startingSha1, unreleasedDetails.endingSha1))
             print(markdownUnreleased(unreleasedDetails.changelogEntries, withLinkRef: true))
         } else {
-            print(markdownUnreleased([:], withLinkRef: true))
+            print(markdownUnreleased([:]))
         }
 
         // print releases

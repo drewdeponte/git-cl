@@ -48,7 +48,7 @@ struct UnreleasedCommand: ParsableCommand {
                 print(markdownUnreleased(details.changelogEntries, withLinkRef: true))
             }
         } else if !self.commits {
-            print(markdownUnreleased([:], withLinkRef: true))
+            print(markdownUnreleased([:]))
         }
     }
 }
