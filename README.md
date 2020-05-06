@@ -3,6 +3,8 @@
 A Git command line tool for managing your CHANGELOG from defined schema entries
 in your Git commit messages.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/g7xqWKmIUKI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Why
 
 We created `git-cl` primarily because of the following:
