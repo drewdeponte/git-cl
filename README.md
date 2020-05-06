@@ -1,9 +1,11 @@
 # git-cl - Git Changelog
 
 A Git command line tool for managing your CHANGELOG from defined schema entries
-in your Git commit messages.
+in your Git commit messages. If you prefer videos checkout the ~15 min video
+where we provide a detailed introduction below. Otherwise skip the video and
+get the details from the README.md.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/g7xqWKmIUKI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Intro Video Thumbnail](http://img.youtube.com/vi/g7xqWKmIUKI/0.jpg)](https://youtu.be/g7xqWKmIUKI)
 
 ## Why
 
