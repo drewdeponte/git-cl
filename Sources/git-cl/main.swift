@@ -1,2 +1,3 @@
+import GitChangelog
 
 GitChangelog.main()

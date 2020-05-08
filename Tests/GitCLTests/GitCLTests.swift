@@ -1,5 +1,6 @@
 import XCTest
 import Foundation
+@testable import GitChangelog
 
 final class GitCLTests: XCTestCase {
     func testRegex() throws {
@@ -61,11 +62,28 @@ final class GitCLTests: XCTestCase {
             }
         }
         
-        
         XCTAssertEqual(changelogEntries.count, 3)
+    }
+
+    func testRepositoryURLtoCompareBaseURL() {
+        // Valid GitHub SSH repository url
+        XCTAssertEqual(compareURL(URL(string: "git@github.com:uptech/git-cl.git")!, fromSha: "b547cc9", toSha: "64454ee")!.absoluteString, "https://github.com/uptech/git-cl/compare/b547cc9...64454ee")
+
+        // Valid GitHub HTTPS repository url
+        XCTAssertEqual(compareURL(URL(string: "https://github.com/uptech/git-cl.git")!, fromSha: "b547cc9", toSha: "64454ee")!.absoluteString, "https://github.com/uptech/git-cl/compare/b547cc9...64454ee")
+
+        // Valid Bitbucket SSH repository url
+        XCTAssertEqual(compareURL(URL(string: "git@bitbucket.org:uptechworks/test_uptech_repo.git")!, fromSha: "7f6fe26", toSha: "ac19790")!.absoluteString, "https://bitbucket.org/uptechworks/test_uptech_repo/branches/compare/ac19790%0D7f6fe26")
+
+        // Valid Bitbucket HTTPS repository url
+        XCTAssertEqual(compareURL(URL(string: "https://drewdeponte@bitbucket.org/uptechworks/test_uptech_repo.git")!, fromSha: "7f6fe26", toSha: "ac19790")!.absoluteString, "https://bitbucket.org/uptechworks/test_uptech_repo/branches/compare/ac19790%0D7f6fe26")
+
+        // Unknown Host
+        XCTAssertNil(compareURL(URL(string: "https://drewdeponte@bitaoeuaoeuaeuaueaoueubucket.org/uptechworks/test_uptech_repo.git")!, fromSha: "aoeuaoe", toSha: "aoeuaoe"))
     }
 
     static var allTests = [
         ("testRegex", testRegex),
+        ("testRepositoryURLtoCompareBaseURL", testRepositoryURLtoCompareBaseURL),
     ]
 }

@@ -68,9 +68,11 @@ struct FullCommand: ParsableCommand {
         }
 
         // print the link references
-        if let compareBaseURL = self.repositoryURL() {
+        if let repositoryURL = self.repositoryURL() {
             versionShas.forEach { versionShaInfo in
-                print("[\(versionShaInfo.0)]: \(compareBaseURL.absoluteString)/compare/\(versionShaInfo.2.prefix(7))...\(versionShaInfo.1.prefix(7))")
+                if let diffURL = compareURL(repositoryURL, fromSha: String(versionShaInfo.2.prefix(7)), toSha: String(versionShaInfo.1.prefix(7))) {
+                    print("[\(versionShaInfo.0)]: \(diffURL.absoluteString)")
+                }
             }
         }
     }

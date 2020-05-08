@@ -45,3 +45,26 @@ func markdownRelease(releaseID: String, date: Date, categorizedEntries: [OldChan
     result += markdown(categorizedEntries)
     return result
 }
+
+// Note: The fromSha - toSha is from the bottom of the git tree up. So fromSha should be closer to the bottom of the tree than toSha
+public func compareURL(_ repositoryURL: URL, fromSha: String, toSha: String) -> URL? {
+    if let url = extractBaseURL(repositoryURL.absoluteString) {
+        if let host = url.host {
+            if host == "github.com" {
+                return url.appendingPathComponent("compare").appendingPathComponent("\(fromSha)...\(toSha)")
+            } else if host == "bitbucket.org" {
+                return url.appendingPathComponent("branches").appendingPathComponent("compare").appendingPathComponent("\(toSha)\r\(fromSha)")
+            } else {
+                return nil
+            }
+        } else {
+            return nil
+        }
+    } else {
+        return nil
+    }
+}
+
+private func extractBaseURL(_ str: String) -> URL? {
+    return URL(string: "https://\(str.replacingOccurrences(of: "git@", with: "").replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: ".git", with: "").replacingOccurrences(of: ":", with: "/").replacingOccurrences(of: #"^\w+@"#, with: "", options: .regularExpression))")
+}
