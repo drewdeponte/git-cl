@@ -30,7 +30,7 @@ public struct ChangelogCommitsIterator: IteratorProtocol {
                 .dropFirst()
                 .joined(separator: "\n")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            let regex = try! NSRegularExpression(pattern: self.regexPattern, options: [])
+            let regex = try! NSRegularExpression(pattern: self.regexPattern, options: [.caseInsensitive])
 
             var changelogEntries: [ChangelogEntry] = []
 
@@ -42,8 +42,12 @@ public struct ChangelogCommitsIterator: IteratorProtocol {
                     guard let firstCaptureRange = Range(match.range(at: 1), in: changelogBody),
                         let secondCaptureRange = Range(match.range(at: 2), in: changelogBody) else { return }
 
-                    let category = changelogBody[firstCaptureRange].trimmingCharacters(in: .whitespacesAndNewlines)
-                    let message = changelogBody[secondCaptureRange].trimmingCharacters(in: .whitespacesAndNewlines)
+                    let category = changelogBody[firstCaptureRange]
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .lowercased()
+                    
+                    let message = changelogBody[secondCaptureRange]
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
 
                     switch category {
                     case "added":
