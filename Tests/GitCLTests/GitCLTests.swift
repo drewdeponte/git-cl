@@ -2,21 +2,28 @@ import XCTest
 import Foundation
 
 final class GitCLTests: XCTestCase {
-    func regexTest() throws {
+    func testRegex() throws {
+        let changelogPattern = #"\[changelog\]"#
         let regexPattern = #"(added|changed|deprecated|removed|fixed|security)(?-i):\w?(.*)"#
         
         let body = """
         This is a commit Summary
 
         This is the message
-        [changelog]
+        [CHANGELOG]
         added: ONE THING
         ADDED: Another Thing
         Added: Seomthing
         """
+        
+        var changelogKey = "[changelog]"
+        if let changelogRange = body.range(of: changelogPattern, options: [.regularExpression, .caseInsensitive]) {
+            changelogKey = String(body[changelogRange])
+        }
+        
         let changelogBody = body
             .trimmingCharacters(in: .whitespacesAndNewlines)
-            .components(separatedBy: "[changelog]")
+            .components(separatedBy: changelogKey)
             .dropFirst()
             .joined(separator: "\n")
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -59,6 +66,6 @@ final class GitCLTests: XCTestCase {
     }
 
     static var allTests = [
-        ("regexTest", regexTest),
+        ("testRegex", testRegex),
     ]
 }

@@ -11,6 +11,7 @@ public struct ChangelogCommits: Sequence {
 public struct ChangelogCommitsIterator: IteratorProtocol {
     private let changelogCommits: ChangelogCommits
     private var commitsIterator: CommitsIterator
+    private let changelogPattern = #"\[changelog\]"#
     private let regexPattern = #"(added|changed|deprecated|removed|fixed|security):\w?(.*)"#
 
     init(_ changelogCommits: ChangelogCommits) {
@@ -23,10 +24,15 @@ public struct ChangelogCommitsIterator: IteratorProtocol {
             guard let body = commit.body else {
                 return ChangelogCommit(commit: commit, changelogEntries: [])
             }
+            
+            var changelogKey = "[changelog]"
+            if let changelogRange = body.range(of: changelogPattern, options: [.regularExpression, .caseInsensitive]) {
+                changelogKey = String(body[changelogRange])
+            }
 
             let changelogBody = body
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-                .components(separatedBy: "[changelog]")
+                .components(separatedBy: changelogKey)
                 .dropFirst()
                 .joined(separator: "\n")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
