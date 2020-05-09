@@ -121,7 +121,7 @@ public class GitShell {
     }
 
     public func commits(for tag: Tag)throws -> Commits {
-        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%d%n%as%n%B", tag])
+        let result = try run(self.path, arguments: ["--no-pager", "log", "--date=short", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%d%n%cd%n%B", tag])
         guard result.isSuccessful else { throw Error.gitLogFailure }
         guard let output = result.standardOutput else { return Commits(formattedGitLogOutput: "") }
 
@@ -129,7 +129,7 @@ public class GitShell {
     }
 
     public func commits() throws -> Commits {
-        let result = try run(self.path, arguments: ["--no-pager", "log", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%d%n%as%n%B"])
+        let result = try run(self.path, arguments: ["--no-pager", "log", "--date=short", "--pretty=format:----GIT-CHANGELOG-COMMIT-BEGIN----%n%H%n%d%n%cd%n%B"])
         guard result.isSuccessful else { throw Error.gitLogFailure }
         guard let output = result.standardOutput else { return Commits(formattedGitLogOutput: "") }
         
