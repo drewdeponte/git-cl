@@ -101,6 +101,7 @@ public class GitShell {
     public enum Error: Swift.Error {
         case gitLogFailure
         case gitTagFailure
+        case gitCheckedOutBranchFailure
     }
 
     private let path: String
@@ -163,6 +164,19 @@ public class GitShell {
                 .replacingOccurrences(of: ":", with: "/")
         }
         return URL(string: String(output.dropLast(5)))
+    }
+
+    public func getCheckedOutBranch() throws -> String {
+        let result = try run(self.path, arguments: ["rev-parse", "--abbrev-ref", "HEAD"])
+        guard result.isSuccessful else {
+            throw Error.gitCheckedOutBranchFailure
+        }
+
+        guard let output = result.standardOutput else {
+            throw Error.gitCheckedOutBranchFailure
+        }
+
+        return output.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

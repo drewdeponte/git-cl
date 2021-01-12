@@ -53,7 +53,8 @@ struct FullCommand: ParsableCommand {
         """)
 
         // print unreleased
-        if let unreleasedDetails = ReleaseDetails(for: "master", using: self.git, startsOnRelease: false, includePreReleases: self.pre) {
+        let checkedOutBranch = try! self.git.getCheckedOutBranch()
+        if let unreleasedDetails = ReleaseDetails(for: checkedOutBranch, using: self.git, startsOnRelease: false, includePreReleases: self.pre) {
             versionShas.append(("Unreleased", unreleasedDetails.startingSha1, unreleasedDetails.endingSha1))
             print(markdownUnreleased(unreleasedDetails.changelogEntries, withLinkRef: true))
         } else {

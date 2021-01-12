@@ -16,7 +16,8 @@ public struct ReleaseDetails {
         var lastSha1: String?
         var date: Date?
 
-        for changelogCommit in try! ChangelogCommits(commits: git.commits(for: tag)) {
+        let commits = try! git.commits(for: tag)
+        for changelogCommit in ChangelogCommits(commits: commits) {
             lastSha1 = changelogCommit.commit.sha
 
             if let _ = startingSha1 {

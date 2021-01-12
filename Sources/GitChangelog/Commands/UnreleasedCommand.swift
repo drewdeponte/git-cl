@@ -39,7 +39,8 @@ struct UnreleasedCommand: ParsableCommand {
     }
     
     func run() throws {
-        if let details = ReleaseDetails(for: "master", using: self.git, startsOnRelease: false, includePreReleases: self.pre) {
+        let checkedOutBranch = try! self.git.getCheckedOutBranch()
+        if let details = ReleaseDetails(for: checkedOutBranch, using: self.git, startsOnRelease: false, includePreReleases: self.pre) {
             if self.commits {
                 details.changelogCommits.forEach { (changelogCommit) in
                      print(commitSummary(changelogCommit))
