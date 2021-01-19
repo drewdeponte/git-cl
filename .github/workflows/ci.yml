@@ -1,0 +1,42 @@
+name: Run Tests
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: fwal/setup-swift@v1
+        with:
+          swift-version: "5.2"
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test
+
+  example:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # needed to get full history
+      - uses: fwal/setup-swift@v1
+        with:
+          swift-version: "5.2"
+      - name: Install git-ci
+        run: |
+          cd /tmp/
+          git clone https://github.com/uptech/git-cl.git git-cl
+          cd ./git-cl
+          make -j$(nproc)
+          sudo make install
+          cd -
+      - name: Generate Changelog
+        run: |
+          git cl full

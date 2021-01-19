@@ -1,6 +1,6 @@
 import XCTest
 
-import git_changelogTests
+import GitCLTests
 
 var tests = [XCTestCaseEntry]()
 tests += GitCLTests.allTests()
