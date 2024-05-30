@@ -49,7 +49,7 @@ security: some security fix you want in your changelog
 ```
 
 Still want to get more comfortable? Check out a snapshot of the Git log of this
-project [example Git log](https://github.com/uptech/git-changelog/blob/master/example/GIT_LOG.txt).
+project [example Git log](https://github.com/drewdeponte/git-changelog/blob/master/example/GIT_LOG.txt).
 
 ### Tag a Release
 
@@ -80,7 +80,7 @@ you can do even more useful things. The following is a list of the various
 - `git cl released <released-id> --commits` - get commits included in the specified release
 
 Curious to see what the produced Changelog looks like. Checkout our
-[CHANGELOG.md](https://github.com/uptech/git-changelog/blob/master/CHANGELOG.md).
+[CHANGELOG.md](https://github.com/drewdeponte/git-changelog/blob/master/CHANGELOG.md).
 We regenerate and publish it to the repository after every release.
 
 ## Installation
@@ -96,13 +96,13 @@ the `git-cl` formula. You can use it by doing the following:
 #### Add the Tap
 
 ```text
-$ brew tap "uptech/homebrew-oss"
+$ brew tap "drewdeponte/oss"
 ```
 
 #### brew install
 
 ```text
-$ brew install uptech/oss/git-cl
+$ brew install drewdeponte/oss/git-cl
 ```
 
 ### Build from Source
@@ -164,19 +164,13 @@ output here as well.
 
 ## License
 
-`git-cl` is Copyright © 2020 UpTech Works, LLC. It is free software, and
-may be redistributed under the terms specified in the LICENSE file.
+`git-cl` is free software, and may be redistributed under the terms specified
+in the LICENSE file.
 
-## About <img src="http://upte.ch/img/logo.png" alt="uptech" height="48">
+## About
 
-`git-cl` is maintained and funded by [UpTech Works, LLC][uptech], a software
-design & development agency & consultancy.
+`git-cl` is maintained and funded by [Drew De Ponte][drewdeponte].
 
-We love open source software. See [our other projects][community] or
-[hire us][hire] to design, develop, and grow your product.
-
+[drewdeponte]: https://drewdeponte.com
 [Git]: https://git-scm.com
 [GNU make]: https://www.gnu.org/software/make/
-[community]: https://github.com/uptech
-[hire]: http://upte.ch
-[uptech]: http://upte.ch
